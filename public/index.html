@@ -4,41 +4,48 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Polling</title>
-    <style></style>
+    <style>
+      #data-box {
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width: 300px;
+      }
+    </style>
   </head>
   <body>
     <button type="button" id="start-polling-btn">Start polling</button>
-    <button type="button" id="stop-polling-btn">Stop polling</button>
-    <button type="button" id="reset-btn">Reset</button>
     <div id="data-box"></div>
     <script defer>
       const startPollingButton = document.querySelector("#start-polling-btn");
-      const stopPollingBtn = document.querySelector("#stop-polling-btn");
       const dataBox = document.querySelector("#data-box");
 
-      let polling = null;
+      let done = false;
+      let interval;
 
       function startPolling() {
-        polling = setInterval(() => {
+        if (done) {
+          dataBox.innerHTML = "";
+          done = false;
+        }
+
+        interval = setInterval(() => {
           fetch("/data")
             .then((response) => response.json())
             .then((data) => {
-              dataBox.innerHTML = data.message;
-            });
-        }, 200);
+              if (data.message === "\n") {
+                done = true;
+                clearInterval(interval);
+                return;
+              }
+
+              dataBox.innerHTML += data.message;
+            })
+        }, 100);
       }
 
-      function stopPolling() {
-        clearInterval(polling);
-      }
-
-      startPollingButton.addEventListener("click", () => {
-        startPolling();
-      });
-
-      stopPollingBtn.addEventListener("click", () => {
-        stopPolling();
-      });
+      startPollingButton.addEventListener("click", startPolling);
     </script>
   </body>
 </html>
