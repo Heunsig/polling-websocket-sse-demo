@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Polling</title>
+    <style>
+      #data-box {
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width: 300px;
+      }
+    </style>
+  </head>
+  <body>
+    <button type="button" id="start-polling-btn">Start polling</button>
+    <div id="data-box"></div>
+    <script defer>
+      const startPollingButton = document.querySelector("#start-polling-btn");
+      const dataBox = document.querySelector("#data-box");
+      let socket;
+
+      function connectSocket() {
+        socket = new WebSocket("ws://localhost:3000");
+
+        socket.addEventListener("open", () => {
+          console.log("Connected to the server");
+        });
+
+        socket.addEventListener("close", () => {
+          console.log("Disconnected from the server");
+        });
+
+        socket.addEventListener("message", (event) => {
+          if (event.data === "\n") {
+            socket.send("stop");
+            socket.close();
+            return;
+          }
+          dataBox.innerHTML += event.data;
+        });
+      }
+
+      startPollingButton.addEventListener("click", () => {
+        // Always connect a new socket when the button is clicked
+        connectSocket();
+
+        // Send the "start" message only when the socket is open
+        socket.addEventListener('open', () => {
+          socket.send("start");
+        });
+        
+        // A different way to listen for the socket open event.
+        // socket.onopen = () => {
+        //   socket.send("start");
+        // };
+      });
+    </script>
+  </body>
+</html>
