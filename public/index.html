@@ -30,19 +30,24 @@
           done = false;
         }
 
+        fetch("/start");
+
         interval = setInterval(() => {
           fetch("/data")
             .then((response) => response.json())
             .then((data) => {
-              if (data.message === "\n") {
+              if (data.message.includes("\n")) {
                 done = true;
                 clearInterval(interval);
+                fetch("/stop");
                 return;
               }
 
-              dataBox.innerHTML += data.message;
-            })
-        }, 100);
+              if (data.message !== undefined) {
+                dataBox.innerHTML += data.message;
+              }
+            });
+        }, 1000);
       }
 
       startPollingButton.addEventListener("click", startPolling);

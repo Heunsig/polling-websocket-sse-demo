@@ -23,7 +23,7 @@
       let socket;
 
       function connectSocket() {
-        socket = new WebSocket("ws://localhost:3000");
+        socket = new WebSocket("ws://localhost:3001");
 
         socket.addEventListener("open", () => {
           console.log("Connected to the server");
